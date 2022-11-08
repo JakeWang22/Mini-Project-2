@@ -4,17 +4,15 @@ import { useState, useEffect } from "react";
 function CatFacts() {
     const [facts, setFacts] = useState([]);
     const [pFacts, setPFacts] = useState([]);
-    const [fav, setFav] = useState([false]);
+    const [fav, setFav] = useState(false);
+    const [counter, setCounter] = useState(0);
     const fetchData = async () => {
         const response = await fetch("https://catfact.ninja/fact");
         const data = await response.json();
-        if (facts != null) {
-            pFacts.push({favorite: fav, fact: facts.fact});
+        if (facts != null && facts.fact != null) {
+            pFacts.unshift({favorite: fav, fact: facts.fact});
             setFav(false);
         }
-        if (pFacts.length > 10) {
-            pFacts.shift();
-        } 
         setPFacts(pFacts);
         setFacts(data);
     };
@@ -22,26 +20,36 @@ function CatFacts() {
         setFav(true);
     }
     const nextTen = () => {
-        counter+=10;
+        setCounter(Math.min(counter+10, pFacts.length - pFacts.length % 10));
     }
     const prevTen = () => {
-        counter -=10;
+        setCounter(Math.max(0, counter-10));
+    }
+    const forceUpdate = (index) => {
+        const copy = [...pFacts];
+        const entry = copy[index];
+        entry.favorite = !entry.favorite;
+        copy[index] = entry;
+        setPFacts(copy);
     }
     useEffect(() => {
         fetchData();
     }, []);
 
-    let counter = 1;
+    let c = 0;
 
     return (
         <div className="continer">
-            <p>{facts.fact}</p>
+            <p style={{fontSize: 30}}>{facts.fact}</p>
             <button onClick={fetchData}>New Fact</button>
             <button onClick={favorite}>Favorite Fact</button>
-            <p>Previous Facts</p>
+            <p style={{fontWeight: 'bold'}}>Previous Facts</p>
             {
-                pFacts.map(prev => {
-                    return <p className={prev.favorite ? "favorite" : "fact"} key={counter}>{prev.fact}</p>
+                pFacts.filter((_, index) => index >= counter && index < (counter + 10)).map((prev, index) => {
+                    return <div key={index}>
+                        <p style={{display: "inline"}} className={prev.favorite ? "favorite" : "fact"}>{prev.fact}</p>
+                        <button onClick={() => forceUpdate(index)}>{prev.favorite ? "Unfavorite" : "Favorite"}</button>
+                    </div>
                 })
             }
             <button onClick={nextTen}>Next 10 facts</button>

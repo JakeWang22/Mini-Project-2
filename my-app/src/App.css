@@ -3,5 +3,8 @@
 }
 
 .fact {
-  color: green;
+  color: black;
+}
+p {
+  font-size: 20px;
 }

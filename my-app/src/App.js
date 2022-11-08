@@ -6,7 +6,7 @@ function App() {
   return (
     <div className="App">
      <h1>Cat Facts</h1>
-     <p>Current Fact</p>
+     <p style={{fontWeight: 'bold'}}>Current Fact</p>
      <CatFacts/>
     </div>
   );
